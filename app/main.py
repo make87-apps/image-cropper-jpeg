@@ -1,4 +1,12 @@
-from make87 import get_topic, topic_names, PublisherTopic, SubscriberTopic, MultiSubscriberTopic, MessageMetadata
+from make87 import (
+    get_topic,
+    topic_names,
+    PublisherTopic,
+    SubscriberTopic,
+    MultiSubscriberTopic,
+    MessageMetadata,
+    initialize,
+)
 from make87_messages.geometry.box.box_2d_pb2 import Box2DAxisAligned
 from make87_messages.image.compressed.image_jpeg_pb2 import ImageJPEG
 import cv2
@@ -6,6 +14,7 @@ import numpy as np
 
 
 def main():
+    initialize()
     publisher_topic = get_topic(name=topic_names.CROPPED_IMAGE)
 
     def crop_and_publish_image(messages: Box2DAxisAligned, metadata: MessageMetadata):
