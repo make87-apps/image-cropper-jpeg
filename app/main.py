@@ -1,11 +1,11 @@
+from typing import Tuple
+
 from make87 import (
-    get_topic,
-    topic_names,
-    PublisherTopic,
-    SubscriberTopic,
-    MultiSubscriberTopic,
-    MessageMetadata,
     initialize,
+    get_subscriber_topic,
+    get_publisher_topic,
+    resolve_topic_name,
+    MultiSubscriberTopic,
 )
 from make87_messages.geometry.box.box_2d_pb2 import Box2DAxisAligned
 from make87_messages.image.compressed.image_jpeg_pb2 import ImageJPEG
@@ -15,9 +15,10 @@ import numpy as np
 
 def main():
     initialize()
-    publisher_topic = get_topic(name=topic_names.CROPPED_IMAGE)
+    topic_name = resolve_topic_name("CROPPED_IMAGE")
+    publisher_topic = get_publisher_topic(name=topic_name, message_type=ImageJPEG)
 
-    def crop_and_publish_image(messages: Box2DAxisAligned, metadata: MessageMetadata):
+    def crop_and_publish_image(messages: Tuple[Box2DAxisAligned, ImageJPEG]):
         bounding_box_msg, image_msg = messages
 
         # Decode the image
@@ -41,10 +42,12 @@ def main():
             publisher_topic.publish(cropped_image_message)
             print("Published cropped image")
 
-    bounding_box_topic = get_topic(name=topic_names.BOUNDING_BOX_2D)
-    image_topic = get_topic(name=topic_names.IMAGE_DATA)
+    bounding_box_topic = get_subscriber_topic(name=resolve_topic_name("BOUNDING_BOX_2D"), message_type=Box2DAxisAligned)
+    image_topic = get_subscriber_topic(name=resolve_topic_name("IMAGE_DATA"), message_type=ImageJPEG)
 
-    multi_subscriber = MultiSubscriberTopic(topics=[bounding_box_topic, image_topic], delta=0.1)
+    multi_subscriber = MultiSubscriberTopic(delta_time=0.1)
+    multi_subscriber.add_topic(bounding_box_topic)
+    multi_subscriber.add_topic(image_topic)
     multi_subscriber.subscribe(crop_and_publish_image)
 
 
