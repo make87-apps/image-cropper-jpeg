@@ -15,8 +15,7 @@ import numpy as np
 
 def main():
     initialize()
-    topic_name = resolve_topic_name("CROPPED_IMAGE")
-    publisher_topic = get_publisher(name=topic_name, message_type=ImageJPEG)
+    publisher_topic = get_publisher(name="CROPPED_IMAGE", message_type=ImageJPEG)
 
     def crop_and_publish_image(messages: Tuple[Box2DAxisAligned, ImageJPEG]):
         bounding_box_msg, image_msg = messages
